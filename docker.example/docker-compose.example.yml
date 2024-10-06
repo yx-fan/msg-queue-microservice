@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  push-notification-service:
+    build: .
+    container_name: msg-queue-service
+    restart: always
+    environment:
+      - TZ=America/New_York
+    ports:
+      - "0000:0000" # Node.js app
+      - "00000:00000" # gRPC
+      - "00000:00000" # grpcui Web UI
+    volumes:
+      - .:/app
+    env_file:
+      - .env.docker
+    networks:
+      - shared_network
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: rabbitmq
+    ports:
+      - "0000:0000"
+      - "00000:00000"
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    external: true

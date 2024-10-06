@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package messageQueue;
+
+// Define the message structure
+message Message {
+    string id = 1;  // The unique identifier of the message
+    string body = 2;  // The body of the message
+    string topic = 3;  // The topic of the message
+    int64 timestamp = 4;  // The timestamp of the message
+}
+
+// Point-to-point mode request and response
+message PublishRequest {
+    string topic = 1;  // The topic of the message
+    Message message = 2;  // The message to be published
+}
+
+message PublishResponse {
+    bool success = 1;  // The success status of the publish operation
+    string message = 2;  // The message of the response
+}
+
+message SubscribeRequest {
+    string topic = 1;  // The topic to subscribe to
+}
+
+message SubscribeResponse {
+    bool success = 1;  // The success status of the subscribe operation
+    string message = 2;  // The message of the response
+}
+
+message UnsubscribeRequest {
+    string topic = 1;  // The topic to unsubscribe from
+}
+
+message UnsubscribeResponse {
+    bool success = 1;  // The success status of the unsubscribe operation
+    string message = 2;  // The message of the response
+}
+
+// Fanout mode request and response
+message FanoutPublishRequest {
+    string exchangeName = 1;  // The exchange name for fanout mode
+    Message message = 2;  // The message to be published
+}
+
+message FanoutPublishResponse {
+    bool success = 1;  // The success status of the publish operation
+    string message = 2;  // The message of the response
+}
+
+message FanoutSubscribeRequest {
+    string exchangeName = 1;  // The exchange name to subscribe to
+}
+
+message FanoutSubscribeResponse {
+    bool success = 1;  // The success status of the subscribe operation
+    string message = 2;  // The message of the response
+}
+
+message FanoutUnsubscribeRequest {
+    string exchangeName = 1;  // The exchange name to unsubscribe from
+}
+
+message FanoutUnsubscribeResponse {
+    bool success = 1;  // The success status of the unsubscribe operation
+    string message = 2;  // The message of the response
+}
+
+// Define the messaging service
+service MessagingService {
+    rpc Publish(PublishRequest) returns (PublishResponse) {}
+    rpc Subscribe(SubscribeRequest) returns (stream Message) {}  // Use stream to return multiple messages
+    rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse) {}
+}
+
+// Define the fanout messaging service
+service FanoutMessagingService {
+    rpc FanoutPublish(FanoutPublishRequest) returns (FanoutPublishResponse) {}
+    rpc FanoutSubscribe(FanoutSubscribeRequest) returns (stream Message) {}  // Use stream to return multiple messages
+    rpc FanoutUnsubscribe(FanoutUnsubscribeRequest) returns (FanoutUnsubscribeResponse) {}
+}

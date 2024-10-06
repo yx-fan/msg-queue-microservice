@@ -1,0 +1,12 @@
+node_modules
+.env
+.env.docker
+dist
+push-notification.log
+devdoc.text
+src/config/firebase-credentials.json
+Dockerfile
+docker-compose.yml
+start-in-docker.sh
+stop-in-docker.sh
+msg-queue.log

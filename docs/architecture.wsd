@@ -1,0 +1,72 @@
+@startuml
+!define TITLE_FONT_SIZE 24
+
+skinparam titleFontSize TITLE_FONT_SIZE
+
+title Messaging Queue System Sequence Diagram
+footer Version: 1.0.0
+
+actor ClientA
+actor ClientB
+participant "MessagingService" as MS
+participant "RabbitMQ" as RMQ
+participant "Database" as DB
+
+== Client A Publishes a Message ==
+
+ClientA -> MS: Publish(PublishRequest(topic, message))
+note right of ClientA: ClientA sends a request to publish a message to a specific topic.
+
+MS -> RMQ: Publish(topic, message)
+note right of MS: MessagingService forwards the message to RabbitMQ with the specified topic.
+
+RMQ --> MS: PublishResponse(success, message_id)
+note left of MS: RabbitMQ confirms the message was published and returns a status and message ID.
+
+MS --> ClientA: PublishResponse(success, message_id)
+note right of ClientA: MessagingService returns the publish status and message ID to ClientA.
+
+== Client B Subscribes to a Topic ==
+
+ClientB -> MS: Subscribe(SubscribeRequest(topic))
+note right of ClientB: ClientB sends a request to subscribe to a specific topic.
+
+MS -> RMQ: BindQueue(queue_name, topic)
+note right of MS: MessagingService binds a queue to the topic in RabbitMQ.
+
+RMQ --> MS: SubscribeResponse(success, queue_name)
+note left of MS: RabbitMQ confirms the queue binding and returns a success status.
+
+MS --> ClientB: SubscribeResponse(success, queue_name)
+note right of ClientB: MessagingService sends the subscription confirmation to ClientB.
+
+== RabbitMQ Sends Messages to Client B ==
+
+loop Message Stream
+  RMQ -> MS: DeliverMessage(queue_name, message)
+  note right: RabbitMQ delivers a message from the queue associated with the subscribed topic.
+  
+  MS -> ClientB: Message(id, body, timestamp)
+  note right: MessagingService streams the message to ClientB.
+end
+
+== Client B Unsubscribes from the Topic ==
+
+ClientB -> MS: Unsubscribe(UnsubscribeRequest(topic))
+note right of ClientB: ClientB sends a request to unsubscribe from the topic.
+
+MS -> RMQ: UnbindQueue(queue_name, topic)
+note right of MS: MessagingService unbinds the queue from the topic in RabbitMQ.
+
+RMQ --> MS: UnsubscribeResponse(success)
+note left of MS: RabbitMQ confirms the unsubscription and returns a success status.
+
+MS --> ClientB: UnsubscribeResponse(success)
+note right of ClientB: MessagingService sends the unsubscription confirmation to ClientB.
+
+alt Error Occurred
+    MS -> ClientA: Emit 'error'\nPayload: {status: 500, message: 'An error occurred while sending the message'}
+    note right of ClientA: MessagingService sends an error message back to ClientA if an issue occurs.
+end
+
+@enduml

@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+.env
+.env.docker
+devdoc.text
+start-dev-in-docker.sh
+stop-dev-in-docker.sh
+CHANGELOG.md
+README.md

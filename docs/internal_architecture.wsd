@@ -1,0 +1,60 @@
+@startuml
+!define RECTANGLE_RADIUS 5
+!define SHADOWING false
+!define FONT_NAME Arial
+!define FONT_SIZE 13
+!define FONT_COLOR #222
+
+skinparam roundcorner RECTANGLE_RADIUS
+skinparam shadowing SHADOWING
+skinparam defaultFontName FONT_NAME
+skinparam defaultFontSize FONT_SIZE
+skinparam defaultFontColor FONT_COLOR
+
+title Internal System Architecture
+footer Version: 1.0.0
+
+actor UserA
+actor UserB
+
+package "External Communication" {
+    [gRPC Server]
+    [Client Communication]
+}
+
+package "Controllers" {
+    [Publish Controller]
+    [Subscribe Controller]
+}
+
+package "Services" {
+    [Message Service]
+    [Queue Service]
+}
+
+package "Infrastructure" {
+    [RabbitMQ Connection]
+}
+
+package "Utilities" {
+    [Logging]
+    [Error Handling]
+}
+
+UserA --> [Client Communication] : Sends Messages
+UserB --> [Client Communication] : Receives Messages
+
+[Client Communication] --> [gRPC Server]
+[gRPC Server] --> [Publish Controller]
+[gRPC Server] --> [Subscribe Controller]
+
+[Publish Controller] --> [Queue Service]
+[Subscribe Controller] --> [Message Service]
+
+[Queue Service] --> [RabbitMQ Connection]
+[Message Service] --> [RabbitMQ Connection]
+
+[Queue Service] -down-> [Utilities] : Uses Logging and Error Handling
+[Message Service] -down-> [Utilities] : Uses Logging and Error Handling
+
+@enduml

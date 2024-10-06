@@ -1,0 +1,16 @@
+name: Notify Slack on Msg Queue System Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send notification to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"A new release for the Msg Queue System has been published: v${{ github.event.release.tag_name }}\nRelease Notes: ${{ github.event.release.html_url }}\n\nDescription:\n${{ github.event.release.body }}"}' $SLACK_WEBHOOK_URL
